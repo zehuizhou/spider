@@ -20,15 +20,18 @@ common_header = {'Host': 'movie.douban.com',
 def top250_subject_url_spider():
     """
     获取电影详情地址
-    :return:
+    :return: 返回电影地址列表
     """
+    #  定义电影地址列表
     top250_subject_url_list = []
     print("正在获取电影详情地址。。。")
+    #  遍历25个页面
     for page in range(25):
         top250_url = 'https://movie.douban.com/top250?start={}&filter='.format(page * 25)
         html_top250 = requests.get(url=top250_url, headers=common_header).content.decode()
         time.sleep(random.randint(0, 3))
         html_t = etree.HTML(html_top250)
+        #  遍历li标签，获取电影地址
         div_li_list = html_t.xpath("//ol[@class='grid_view']/li")
         for i in div_li_list:
             top250_subject_url = i.xpath("./div/div/a/@href")[0]
@@ -40,14 +43,16 @@ def top250_subject_url_spider():
 
 def movie_spider(movie_url):
     """
-    爬电影数据
-    :return:
+    爬取电影信息
+    :param movie_url: 传入电影的地址
+    :return: 返回电影信息列表，格式[[], [], []]
     """
     html = requests.get(url=movie_url, headers=common_header).content.decode()
     html_e = etree.HTML(html)  # 获取element 类型的html
 
     movie_name = html_e.xpath("//*[@id='content']/h1/span[1]/text()")[0]
     movie_director = html_e.xpath("//*[@id='info']/span[1]/span[2]/a/text()")[0]
+    #  有些电影没有这些内容，所有try下，不存在就为''
     try:
         movie_attr = html_e.xpath("string(//*[@id='info']/span[@class='actor']/span[@class='attrs'])")
     except:
@@ -90,8 +95,10 @@ def save_data(file_name, data_list):
 
 
 def main():
+    # 定义电影列表
     url_list = top250_subject_url_spider()
 
+    # 遍历电影列表获取电影数据
     for url in url_list:
         data = movie_spider(url)
         save_data('top250movie', data)
