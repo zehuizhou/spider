@@ -1,7 +1,8 @@
 import requests
 from lxml import html
 import re
-import pymysql
+import sqlite3
+import os
 
 etree = html.etree
 
@@ -48,56 +49,44 @@ def book_spider(book_url):
         imgurl = table.xpath(".//tr/td/a/img/@src")[0]
         comment = table.xpath(".//tr/td/p/span/text()")[0] if table.xpath(".//tr/td/p/span/text()") else ''
 
-        book_list = [int(id), name, author, press, imgurl, comment]
+        book_list = [id, name, author, press, imgurl, comment]
         total_book_list.append(book_list)
+        print(total_book_list)
 
     return total_book_list
 
 
 def save_data(data):
-    # 创建一个数据库
-    pymysql.connect("localhost", "root", "123456").cursor().execute("DROP DATABASE IF EXISTS douban")
-    pymysql.connect("localhost", "root", "123456").cursor().execute("CREATE DATABASE douban")
+    # 连接到数据库
+    # 数据库文件是“douban.db”
+    # 如果数据库已经存在，会删了该数据库然后再创建，如果数据库不存在的话，将会自动创建一个数据库，
+    db_file = os.path.join(os.path.dirname(__file__), 'douban.db')
+    if os.path.isfile(db_file):
+        os.remove(db_file)
 
-    # 打开数据库连接，使用 cursor() 方法创建一个游标对象 cursor
-    db = pymysql.connect("localhost", "root", "123456", "douban")
+    conn = sqlite3.connect("douban.db")
 
-    # 使用 cursor() 方法创建一个游标对象 cursor
-    cursor = db.cursor()
+    # 创建一个游标 curson
+    cursor = conn.cursor()
 
-    # 使用 execute() 方法执行 SQL，如果表存在则删除
-    cursor.execute("DROP TABLE IF EXISTS BOOK")
+    # 执行一条语句,创建 user表
+    sql1 = "create table BOOK (id varchar(20) primary key, imgurl varchar(255), press varchar(255), author varchar(255), name varchar(255), comment varchar(512))"
 
-    # "id, name, author, press, imgurl, comment"
-    # 使用预处理语句创建表
-    sql = """CREATE TABLE `book` (
-          `imgurl` varchar(255) DEFAULT NULL,
-          `press` varchar(255) DEFAULT NULL,
-          `author` varchar(255) DEFAULT NULL,
-          `name` varchar(255) DEFAULT NULL,
-          `id` bigint(11) NOT NULL,
-          `comment` varchar(255) DEFAULT NULL,
-          PRIMARY KEY (`id`)
-          ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"""
+    cursor.execute(sql1)
+    # 插入数据
 
-    cursor.execute(sql)
+    sql2 = "INSERT INTO BOOK(id, name, author, press, imgurl, comment) VALUES (?, ?, ?, ?, ?, ?)"
+    cursor.executemany(sql2, data)
 
-    # SQL 插入语句
-    sql = "INSERT INTO BOOK(id, name, author, press, imgurl, comment) \
-           VALUES (%s, %s, %s, %s, %s, %s)"
-    try:
-        # 执行sql语句
-        cursor.executemany(sql, data)
-        # 执行sql语句
-        db.commit()
-    except KeyError:
-        # 发生错误时回滚
-        print("回滚。。。")
-        db.rollback()
+    # 提交数据到数据库
+    conn.commit()
 
-    # 关闭数据库连接
-    db.close()
-
+    # 查询插入的数据
+    cursor.execute('select * from BOOK')
+    values = cursor.fetchall()
+    print(values)
+    # 关闭Connection:
+    conn.close()
 
 def main():
     # 遍历电影列表获取电影数据

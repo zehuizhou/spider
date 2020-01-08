@@ -52,6 +52,8 @@ def movie_spider(movie_url):
 
     movie_name = html_e.xpath("//*[@id='content']/h1/span[1]/text()")[0]
     movie_director = html_e.xpath("//*[@id='info']/span[1]/span[2]/a/text()")[0]
+
+    movie_rating_people = html_e.xpath("//*[@id='interest_sectl']//span[@property='v:votes']/text()")[0]
     #  有些电影没有这些内容，所有try下，不存在就为''
     try:
         movie_attr = html_e.xpath("string(//*[@id='info']/span[@class='actor']/span[@class='attrs'])")
@@ -65,15 +67,16 @@ def movie_spider(movie_url):
         movie_year = ''
     movie_rate = html_e.xpath("//*[@id='interest_sectl']/div[1]/div[2]/strong/text()")[0]
     try:
-        movie_type = str(html_e.xpath("//*[@id='info']/span[@property='v:genre']/text()")).replace('[', '').replace(']',
-                                                                                                                    '')
+        movie_type = str(html_e.xpath("//*[@id='info']/span[@property='v:genre']/text()")).replace('[', '').replace(']','')
     except:
         movie_type = ''
     movie_eva = html_e.xpath("//div[@id='comments-section']/div[1]/h2/span/a/text()")[0]
     movie_evaluate = re.findall(r'\d+', movie_eva)[0]
 
     total_list = [
-        [movie_name, movie_rate, movie_director, movie_attr, movie_year, movie_country, movie_type, movie_evaluate]
+        [movie_name, movie_rate,
+         movie_rating_people,
+         movie_director, movie_attr, movie_year, movie_country, movie_type, movie_evaluate]
     ]
 
     print(total_list)

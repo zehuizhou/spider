@@ -40,8 +40,8 @@ def school_spider(url):
             global specialtyline_url_list
             # item是要存的字段
             item = [school_id, name, province_name, level_name, rank, type_name, rank_type]
-            school_item_lsit.append(item)
 
+            school_item_lsit.append(item)
             school_id_list.append(school_id)
 
             # 获取所需的专业分数线地址，注意地址中有两个{}，下面的“specialtyline_url_old.format(school_id, year)”代码进行了加工
