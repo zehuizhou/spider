@@ -116,5 +116,6 @@ def main():
         # 把每次获取到的数据追加到csv
         save_data('specialtyline', data)
 
+
 if __name__ == '__main__':
     main()
