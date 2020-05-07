@@ -9,7 +9,7 @@ import zmail
 """
 
 server = zmail.server('244776919@qq.com', 'xuzrqkazsiifbgcf')
-receive_mail = ['291435861@qq.com']
+receive_mail = ['123456@qq.com']
 
 web_header = {
     'Host': 'www.douban.com',
