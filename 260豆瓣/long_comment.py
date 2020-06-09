@@ -1,7 +1,9 @@
-import requests
 import re
 import time
-from constants import change_proxy, save_list_dict
+import pandas as pd
+import requests
+import os
+import sys
 from parsel import Selector
 
 
@@ -9,15 +11,15 @@ header = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.79 Safari/537.36',
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
     'Host': 'movie.douban.com',
-    'Cookie': 'bid="P6c5c7SdD3w"; ll="118172"; gr_user_id=fcd78f58-405d-4b35-a899-3b329e1bf917; _vwo_uuid_v2=D56EE26105876EE3AC3D4478816AA711B|4954256576cb3089bb2eed5430b1344a; __utmv=30149280.20803; douban-profile-remind=1; douban-fav-remind=1; viewed="26836700_27667375_27028517_26801374_1013208"; push_doumail_num=0; push_noty_num=0; ct=y; __utma=30149280.1397345246.1575978668.1587368117.1588729373.58; __utmc=30149280; __utmz=30149280.1588729373.58.29.utmcsr=baidu|utmccn=(organic)|utmcmd=organic; __utmt=1; __utmb=30149280.1.10.1588729373; _pk_ref.100001.4cf6=%5B%22%22%2C%22%22%2C1588729391%2C%22https%3A%2F%2Fwww.douban.com%2F%22%5D; _pk_ses.100001.4cf6=*; __utma=223695111.1128099318.1575978668.1587365563.1588729391.32; __utmb=223695111.0.10.1588729391; __utmc=223695111; __utmz=223695111.1588729391.32.14.utmcsr=douban.com|utmccn=(referral)|utmcmd=referral|utmcct=/; ap_v=0,6.0; _pk_id.100001.4cf6=ade6f0a5b5312eb8.1575978668.32.1588729414.1587365570.'
+    'Cookie': 'll="108258"; bid=ZL0GiLd0nOE; __utma=30149280.932882661.1591671703.1591671703.1591671703.1; __utmz=30149280.1591671703.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none); __utmc=30149280; __utmt=1; dbcl2="210057328:O8IkcR5ba2o"; ck=xNVX; push_doumail_num=0; push_noty_num=0; __utmv=30149280.21005; douban-profile-remind=1; __utmb=30149280.5.10.1591671703; _pk_ses.100001.4cf6=*; _pk_ref.100001.4cf6=%5B%22%22%2C%22%22%2C1591671828%2C%22https%3A%2F%2Fwww.douban.com%2Fpeople%2F210057328%2F%22%5D; __utma=223695111.128435007.1591671828.1591671828.1591671828.1; __utmb=223695111.0.10.1591671828; __utmc=223695111; __utmz=223695111.1591671828.1.1.utmcsr=douban.com|utmccn=(referral)|utmcmd=referral|utmcct=/people/210057328/; __yadk_uid=EctSpcJPiHayHNCQxYBOmttZhvJC2JuW; _pk_id.100001.4cf6=fbfbf6b4ac6fc975.1591671828.1.1591671833.1591671828.'
 }
 
-url = 'https://movie.douban.com/subject/6982558/reviews?start={}'
+url = 'https://movie.douban.com/subject/27605698/reviews?start={}'
 
 
 def spider(p):
 
-    ret = requests.get(url=url.format(20*p), headers=header, proxies=proxy, timeout=6).content.decode()
+    ret = requests.get(url=url.format(20*p), headers=header, timeout=6).content.decode()
     root = Selector(ret)
     div_list = root.xpath("//div[@class='review-list  ']/div")
 
@@ -31,7 +33,7 @@ def spider(p):
         item['摘要'] = div.xpath(".//div[@class='main-bd']/h2/a/text()").get('')
 
         detail_url = 'https://movie.douban.com/j/review/{}/full'.format(comment_id)
-
+        time.sleep(1)
         de_ret = requests.get(url=detail_url, headers=header, timeout=6).json()
         de_root = Selector(de_ret['html'])
         item['全文'] = de_root.xpath("string(/)").get('')
@@ -43,9 +45,16 @@ def spider(p):
     return need
 
 
+def save_to_csv(file_name, list_dict):
+    path = os.path.join(os.path.dirname(sys.argv[0]), file_name + '.csv')
+    flag = False if os.path.isfile(path) else True
+    df = pd.DataFrame(list_dict)
+    df.to_csv(path, mode='a', encoding='utf_8_sig', index=False, header=flag)
+
+
 if __name__ == '__main__':
     for page in range(0, 500):
         d = spider(page)
-        save_list_dict('长城影评', d)
+        save_to_csv('西红柿首富影评', d)
         print(page)
 
