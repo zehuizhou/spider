@@ -51,10 +51,10 @@ def movie_spider(movie_url):
     html = all[0]
     html_e = all[1]
     item['电影名称'] = html_e.xpath("//*[@id='content']/h1/span[1]/text()")[0].split(' ')[0]
-    # item['贴图'] = html_e.xpath("//a[@class='nbgnbg']/img/@src")[0]
+    item['贴图'] = html_e.xpath("//a[@class='nbgnbg']/img/@src")[0]
     dy = html_e.xpath("//*[@id='info']/span[1]/span[2]/a/text()")[0] if html_e.xpath("//*[@id='info']/span[1]/span[2]/a/text()") else ''
-    item['导演'] = dy.split('/')[0].replace(' ', '')   #  有些电影没有这些内容，所有try下，不存在就为''
-    # item['编剧'] = html_e.xpath("string(//*[@id='info']/span[2]/span[2])").replace(' / ', '&&')
+    item['导演'] = dy.split('/')[0].replace(' ', '')
+    item['编剧'] = html_e.xpath("string(//*[@id='info']/span[2]/span[2])").replace(' / ', '&&')
     item['主演'] = html_e.xpath("string(//*[@id='info']/span[@class='actor']/span[@class='attrs'])").replace('更多...', '').replace(' / ', '&&')
     item['类型'] = '&&'.join(html_e.xpath("//*[@id='info']/span[@property='v:genre']/text()"))
     country = re.findall('.*<span class="pl">制片国家/地区:</span>(.*)<br/>', html)[0]
@@ -69,7 +69,7 @@ def movie_spider(movie_url):
         movie_year = re.findall(r'\d+', year)[0]
     except:
         movie_year = ''
-    # item['年份'] = movie_year
+    item['年份'] = movie_year
     item['评分'] = html_e.xpath("//*[@id='interest_sectl']/div[1]/div[2]/strong/text()")[0] if html_e.xpath("//*[@id='interest_sectl']/div[1]/div[2]/strong/text()") else ''
 
     try:
@@ -78,8 +78,8 @@ def movie_spider(movie_url):
     except:
         movie_rating_people = ''
     item['评价人数'] = movie_rating_people
-    # item['简介'] = html_e.xpath("string(//*[@id='link-report']/span[1])").replace(' ', '').replace('\n', '')
-    # item['链接'] = movie_url
+    item['简介'] = html_e.xpath("string(//*[@id='link-report']/span[1])").replace(' ', '').replace('\n', '')
+    item['链接'] = movie_url
     print(item)
     return [item]
 
