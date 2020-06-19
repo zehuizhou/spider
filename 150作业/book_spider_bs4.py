@@ -17,6 +17,7 @@ def save_to_csv(file_name, list_dict):
 
 def spider():
     i = 1
+    need_list = []
     for page in range(0, 10):
         url = 'https://book.douban.com/top250?start={}'.format(page*25)
         request_headers = {'Host': 'book.douban.com',
@@ -31,8 +32,6 @@ def spider():
         table_list = html.select('div[class="indent"] table')
         print(len(table_list))
 
-        need_list = []
-
         for table in table_list:
             item = {}
             item['序号'] = i
@@ -46,8 +45,8 @@ def spider():
             need_list.append(item)
 
             print(item)
-        save_to_csv('booktop250', need_list)
-        print(f'{page}保存成功'.center(100, '-'))
+    df = pd.DataFrame(need_list)
+    df.to_excel('book.xlsx', encoding='utf_8_sig', index=False)
 
 
 if __name__ == "__main__":
