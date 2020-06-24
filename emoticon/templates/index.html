@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="referrer" content="no-referrer">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--    导入bootstrap响应式的样式-->
+    <link rel="stylesheet" href="./static/css/bootstrap.min.css">
+</head>
+
+<body>
+<div class="container">
+    <div class="jumbotron">
+        <h1>开心表情</h1>
+    </div>
+
+    <!--定义form表单-->
+    <form class="navbar-form navbar-left" role="search" method="post" action="/">
+        <div class="form-group">
+            <input type="text" class="form-control" placeholder="Search" name="keyword">
+            <button type="submit" class="btn btn-default">搜索</button>
+        </div>
+    </form>
+    <br>
+    {% for message in get_flashed_messages() %}
+        {{ message }}
+    {% endfor %}
+</div>
+
+{% if not em_dict %}
+    <div class="container">
+        <h3>暂无内容</h3>
+    </div>
+{% else %}
+    <div class="container">
+        <hr>
+        {% set l = em_dict | length %}
+        {% for i in range(0, l) %}
+            <div>
+                <a href="{{ em_dict[i]['链接'] }}" target="_blank">
+                    <img src="./static/img/{{ em_dict[i]['图片名'] }}?t={{ ran }}" class="img-responsive" border="2"
+                         style="max-height: 266px; margin-right:10px; float:left; display: inline-block;" alt="">
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+</body>
+</html>
