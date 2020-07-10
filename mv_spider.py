@@ -3,12 +3,9 @@ import requests
 import re
 import time
 from constants import change_proxy, save_list_dict
-from fake_useragent import UserAgent
 from lxml import html
 from parsel import Selector
 
-
-# ua = UserAgent(verify_ssl=False)
 
 etree = html.etree
 
@@ -29,6 +26,11 @@ def movie_spider(movie_url):
     item = {}
 
     def get_movie(retry_count):
+        """
+        获取网页
+        :param retry_count: 重试次数
+        :return:
+        """
         if retry_count < 0:
             sys.exit()
         try:

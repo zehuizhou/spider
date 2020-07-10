@@ -3,6 +3,7 @@ import time
 import requests
 from parsel import Selector
 import zmail
+import scrapy
 
 """
 杭州租房小助手
@@ -27,10 +28,9 @@ title_list = []
 
 def spider(page):
     url = 'https://www.douban.com/group/HZhome/discussion?start={}'.format(page*25)
-    ret = requests.get(url=url.format(page), headers=web_header).content.decode()
+    res = requests.get(url=url.format(page), headers=web_header).content.decode()
 
-    time.sleep(1)
-    root = Selector(ret)
+    root = Selector(res)
     tr_list = root.xpath("//table[@class='olt']//tr")
 
     for tr in tr_list:

@@ -88,6 +88,7 @@ def save_data(data):
     # 关闭Connection:
     conn.close()
 
+
 def main():
     # 遍历电影列表获取电影数据
     totol_data = []
