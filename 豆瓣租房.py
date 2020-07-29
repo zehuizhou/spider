@@ -3,7 +3,6 @@ import time
 import requests
 from parsel import Selector
 import zmail
-import scrapy
 
 """
 杭州租房小助手
