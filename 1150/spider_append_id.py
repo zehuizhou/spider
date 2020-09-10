@@ -6,7 +6,7 @@ import pandas as pd
 import requests
 from parsel import Selector
 from fake_useragent import UserAgent
-from tool import download
+from spider import download
 
 ua = UserAgent(verify_ssl=False)
 
