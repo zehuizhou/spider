@@ -17,9 +17,7 @@ common_headers = {
     'User-Agent': ua.random
 }
 
-proxy_url = 'http://route.xiongmaodaili.com/xiongmao-web/api/glip?secret=4bf26f6bdaf1978df580d617a2cffff0&orderNo=GL20200131152126nmVxqyej&count=1&isTxt=0&proxyType=1'
-
-
+proxy_url = 'http://route.xiongmaodaili.com/xiongmao-web/api/glip?secret=cf65354409478e7bd594f3bb98bb1805&orderNo=GL20200131152126nmVxqyej&count=1&isTxt=0&proxyType=1'
 
 
 def change_proxy(retry_count):
@@ -59,7 +57,9 @@ def info_spider(celebrity_id):
         try:
             with open('pro.txt', 'r') as f:
                 proxy = eval(f.read())
-            ret = requests.get(url=url, headers=common_headers, proxies=proxy, timeout=6).content.decode()
+            response = requests.get(url=url, headers=common_headers, proxies=proxy, timeout=6)
+            ret = response.content.decode()
+            assert 'navigator.platform,navigator.userAgent,navigator.vendor' not in ret
             return ret
         except Exception as e:
             print(e)
@@ -72,29 +72,32 @@ def info_spider(celebrity_id):
     item['姓名'] = root.xpath("//div[@id='content']/h1/text()").get('')
     item['id'] = celebrity_id
     item['海报'] = root.xpath("//div[@class='pic']/a[@class='nbg']/@href").get('')
-
     download(img_name=str(item['id'])+'.jpg', img_url=item['海报'])
     li_list = root.xpath("//div[@class='info']/ul/li")
     item['性别'], item['星座'], item['出生日期'], item['生卒日期'], item['出生地'], item['职业'] = '', '', '', '', '', ''
     for li in li_list:
         item[li.xpath("./span/text()").get('')] = li.xpath("./text()[2]").get('').replace('\n', '').replace(':', '').strip()
-    if '更多外文名' in item:
-        del item['更多外文名']
-    if '更多中文名' in item:
-        del item['更多中文名']
-    if '家庭成员' in item:
-        del item['家庭成员']
-    if 'imdb编号' in item:
-        del item['imdb编号']
-    if '官方网站' in item:
-        del item['官方网站']
 
     item['简介'] = ''.join(root.xpath("//div[@class='bd']/span[@class='all hidden']/text()").getall()).replace('\n', '').strip() \
         if root.xpath("//div[@class='bd']/span[@class='all hidden']") \
         else ''.join(root.xpath("//div[@class='bd']/text()").getall()).replace('\n', '').strip()
     item['影片id'] = movies_spider(item['id'])
 
-    return [item]
+    need_item = {
+        'id': item['id'],
+        '姓名': item['姓名'],
+        '海报': item['海报'],
+        '性别': item['性别'],
+        '星座': item['星座'],
+        '出生日期': item['出生日期'],
+        '生卒日期': item['生卒日期'],
+        '出生地': item['出生地'],
+        '职业': item['职业'],
+        '简介': item['简介'],
+        '影片id': item['影片id']
+    }
+
+    return [need_item]
 
 
 def movies_spider(uid):
@@ -146,11 +149,13 @@ def movies_spider(uid):
 
 
 if __name__ == '__main__':
-    # change_proxy(2)
-
-    for n in range(1412860, 1416000):
+    change_proxy(1)
+    with open('names_new', encoding='utf-8') as f:
+        nn = f.read().splitlines()
+    print(nn)
+    for n in nn:
         data = info_spider(n)
         print(data)
-        save_to_csv(file_name='影人', list_dict=data)
+        save_to_csv(file_name='20200910', list_dict=data)
         print(f'第 {n} 位保存成功'.center(100, '-'))
 
