@@ -71,7 +71,4 @@ def spider(topic_id):
 
 
 if __name__ == '__main__':
-    with open('topic_ids', 'r') as f:
-        ids = f.readlines()
-    for i in ids:
-        spider(i)
+    spider(19555513)
